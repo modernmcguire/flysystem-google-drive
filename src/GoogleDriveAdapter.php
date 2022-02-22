@@ -56,6 +56,7 @@ class GoogleDriveAdapter extends AbstractAdapter
             'role' => 'reader',
             'withLink' => true
         ],
+        'permissionOptions' => [],
         'appsExportMap' => [
             'application/vnd.google-apps.document' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.google-apps.spreadsheet' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -90,6 +91,13 @@ class GoogleDriveAdapter extends AbstractAdapter
      * @var array
      */
     protected $publishPermission;
+
+    /**
+     * Permission options as published item
+     *
+     * @var array
+     */
+    protected $permissionOptions;
 
     /**
      * Cache of file objects
@@ -168,6 +176,7 @@ class GoogleDriveAdapter extends AbstractAdapter
         $this->spaces = $this->options['spaces'];
         $this->useHasDir = $this->options['useHasDir'];
         $this->publishPermission = $this->options['publishPermission'];
+        $this->permissionOptions = $this->options['permissionOptions'];
 
         $this->fetchfieldsGet = self::FETCHFIELDS_GET;
         if ($this->options['additionalFetchField']) {
@@ -768,7 +777,7 @@ class GoogleDriveAdapter extends AbstractAdapter
             }
             try {
                 $permission = new Google_Service_Drive_Permission($this->publishPermission);
-                if ($this->service->permissions->create($file->getId(), $permission)) {
+                if ($this->service->permissions->create($file->getId(), $permission, $this->permissionOptions)) {
                     return true;
                 }
             } catch (Exception $e) {
@@ -794,7 +803,7 @@ class GoogleDriveAdapter extends AbstractAdapter
             try {
                 foreach ($permissions as $permission) {
                     if ($permission->type === 'anyone' && $permission->role === 'reader') {
-                        $this->service->permissions->delete($file->getId(), $permission->getId());
+                        $this->service->permissions->delete($file->getId(), $permission->getId(), $this->permissionOptions);
                     }
                 }
                 return true;
