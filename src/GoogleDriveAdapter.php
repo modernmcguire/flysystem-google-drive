@@ -97,7 +97,7 @@ class GoogleDriveAdapter extends AbstractAdapter
      *
      * @var array
      */
-    protected $permissionOptions;
+    protected $permissionOptions = [];
 
     /**
      * Cache of file objects
